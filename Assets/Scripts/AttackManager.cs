@@ -658,13 +658,6 @@ public class AttackManager : MonoBehaviour
     {
         Stats attackerStats = attacker.GetComponent<Stats>();
 
-        if (attackerStats.actionsLeft < 2 && GameManager.StandardMode)
-        {
-            messageManager.ShowMessage($"<color=red>Postać nie może wykonać tylu akcji w tej rundzie.</color>", 3f);
-            Debug.Log($"Postać nie może wykonać tylu akcji w tej rundzie.");
-            return;
-        }
-
         // wektor we wszystkie osiem kierunkow dookola pola z postacia bedaca celem ataku
         Vector3[] directions = { Vector3.right, Vector3.left, Vector3.up, Vector3.down, new Vector3(1, 1, 0), new Vector3(-1, -1, 0), new Vector3(-1, 1, 0), new Vector3(1, -1, 0) };
 
@@ -688,8 +681,8 @@ public class AttackManager : MonoBehaviour
         {
             messageManager.ShowMessage($"<color=red>Cel ataku stoi poza zasięgiem szarży.</color>", 3f);
             Debug.Log($"Cel ataku stoi poza zasięgiem szarży.");
-            movementManager.SetCharge();
-
+            movementManager.ResetChargeAndRun();
+            GameObject.Find("ButtonManager").GetComponent<ButtonManager>().ShowOrHideActionsButtons(attacker, true);
             return;
         }
 

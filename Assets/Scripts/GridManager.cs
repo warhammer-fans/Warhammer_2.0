@@ -20,10 +20,12 @@ public class GridManager : MonoBehaviour
     [SerializeField] private GameObject rockPrefab;
     [SerializeField] private GameObject treePrefab;
     [SerializeField] private GameObject wallPrefab;
+    [SerializeField] private GameObject waterPrefab;
 
     public static bool treeAdding;
     public static bool rockAdding;
     public static bool wallAdding;
+    public static bool waterAdding;
     public static bool obstacleRemoving;
 
     private bool changeGridSizeAllowed = false;
@@ -116,7 +118,6 @@ public class GridManager : MonoBehaviour
             tile.GetComponent<Tile>()._renderer.material.color = tile.GetComponent<Tile>().normalColor;
     }
 
-
     #region Adding and removing obstacles
     public void AddingObstacle(TMP_Dropdown dropdown)
     {
@@ -125,16 +126,26 @@ public class GridManager : MonoBehaviour
             treeAdding = true;
             rockAdding = false;
             wallAdding = false;
+            waterAdding = false;
         }
         else if (dropdown.value == 1) // skała
         {
             rockAdding = true;
             treeAdding = false;
             wallAdding = false;
+            waterAdding = false;
         }
         else if (dropdown.value == 2) // ściana
         {
             wallAdding = true;
+            rockAdding = false;
+            treeAdding = false;
+            waterAdding = false;
+        }
+        else if (dropdown.value == 3) // woda
+        {
+            waterAdding = true;
+            wallAdding = false;
             rockAdding = false;
             treeAdding = false;
         }
@@ -165,6 +176,7 @@ public class GridManager : MonoBehaviour
         treeAdding = false;
         rockAdding = false;
         wallAdding = false;
+        waterAdding = false;
     }
 
     public void AddObstacle(Vector3 position, string tag, bool loadGame)
@@ -181,6 +193,8 @@ public class GridManager : MonoBehaviour
                 Instantiate(rockPrefab, position, Quaternion.identity).AddComponent<Obstacle>();
             else if (tag == "Wall")
                 Instantiate(wallPrefab, position, Quaternion.identity).AddComponent<Obstacle>();
+            else if (tag == "Water")
+                Instantiate(waterPrefab, position, Quaternion.identity).AddComponent<Obstacle>();
         }
         else
             Debug.Log("W tym miejscu nie można postawić przeszkody.");
@@ -191,7 +205,7 @@ public class GridManager : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
 
         // Usuwa klikniętą przeszkodę
-        if (hit.collider != null && (hit.collider.CompareTag("Tree") || hit.collider.CompareTag("Rock") || hit.collider.CompareTag("Wall")))
+        if (hit.collider != null && (hit.collider.CompareTag("Tree") || hit.collider.CompareTag("Rock") || hit.collider.CompareTag("Wall") || hit.collider.CompareTag("Water")))
         {
             Destroy(hit.collider.gameObject);
         }

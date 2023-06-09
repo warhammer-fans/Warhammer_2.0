@@ -2513,6 +2513,7 @@ MonoBehaviour:
   rockPrefab: {fileID: 2892476945766841829, guid: 3866322dff1665a44ad381b311574a61, type: 3}
   treePrefab: {fileID: 6364622524950083590, guid: 5b9e0c8be840cb049ba0264eee5b3144, type: 3}
   wallPrefab: {fileID: 6364622524950083590, guid: 7cf5a56078f24f94680050a3a3bd3da6, type: 3}
+  waterPrefab: {fileID: 6364622524950083590, guid: 555099b3420c59949b1768e2fa4dc728, type: 3}
 --- !u!4 &856686243
 Transform:
   m_ObjectHideFlags: 0
@@ -5209,6 +5210,8 @@ MonoBehaviour:
     - m_Text: "Ska\u0142a"
       m_Image: {fileID: 0}
     - m_Text: "\u015Aciana"
+      m_Image: {fileID: 0}
+    - m_Text: Woda
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:

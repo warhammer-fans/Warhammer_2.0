@@ -44,8 +44,8 @@ public class Character : MonoBehaviour
         else
             rasa = (Rasa)UnityEngine.Random.Range(4, Enum.GetValues(typeof(Rasa)).Length); 
 
-        messageManager.ShowMessage($"Stworzyłeś {this.gameObject.name} o rasie {rasa}", 3f);
-        Debug.Log($"Stworzyłeś {this.gameObject.name} o rasie {rasa}");
+        //messageManager.ShowMessage($"Stworzyłeś {this.gameObject.name} o rasie {rasa}", 3f);
+        //Debug.Log($"Stworzyłeś {this.gameObject.name} o rasie {rasa}");
 
         //nadanie temu obiektowi klasy Stats
         charStats = this.gameObject.AddComponent<Stats>();

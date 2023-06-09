@@ -21,7 +21,7 @@ public class Obstacle : MonoBehaviour
 
         Collider2D collider = Physics2D.OverlapCircle(mousePosition, 0.1f);
 
-        if (collider != null && GridManager.obstacleRemoving && (collider.gameObject.tag == "Tree" || collider.gameObject.tag == "Rock" || collider.gameObject.tag == "Wall") && Tile.isMouseDragging)
+        if (collider != null && GridManager.obstacleRemoving && (collider.gameObject.tag == "Tree" || collider.gameObject.tag == "Rock" || collider.gameObject.tag == "Wall" || collider.gameObject.tag == "Water") && Tile.isMouseDragging)
         {
             Destroy(collider.gameObject);
         }

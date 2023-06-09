@@ -13,13 +13,14 @@ public class SaveSystem : MonoBehaviour
     private static string dropdownText = "";
     public static bool LoadOnlyCharacters;
     [SerializeField] private GameObject undoButton;
+    private string[] exceptionNames = { "autosave", "Las", "Rzeka", "Miasto" }; // Wyjątki. Nazwy zapisów gry, ktore są zablokowane do nadpisania i nie wyswietlają się podczas wyboru zapisu do wczytania
 
     #region Save functions
     public void SaveAllCharactersStats()
     {
         if(!CharacterManager.Autosave)
         {
-            if (GameObject.Find("NameOfSaveInput").GetComponent<TMP_InputField>().text.Length < 1 || GameObject.Find("NameOfSaveInput").GetComponent<TMP_InputField>().text == "autosave")
+            if (GameObject.Find("NameOfSaveInput").GetComponent<TMP_InputField>().text.Length < 1 || exceptionNames.Contains(Path.GetFileName(GameObject.Find("NameOfSaveInput").GetComponent<TMP_InputField>().text)))
             {
                 GameObject.Find("MessageManager").GetComponent<MessageManager>().ShowMessage($"<color=red>Zapis nieudany. Niepoprawna nazwa pliku.</color>", 4f);
                 Debug.Log($"<color=red>Zapis nieudany. Niepoprawna nazwa pliku.</color>");
@@ -115,8 +116,10 @@ public class SaveSystem : MonoBehaviour
         // Wykonuje pętle dla wszystkich folderów wewnątrz głównego folderu z save'ami
         foreach (string saveFolder in Directory.GetDirectories(Application.persistentDataPath))
         {
-            if (saveFolder != (Application.persistentDataPath + "\\" + "autosave"))
+            if (!exceptionNames.Contains(Path.GetFileName(saveFolder)))
+            {
                 options.Add(Path.GetFileName(saveFolder));
+            }
         }
 
         savedFilesDropdown.AddOptions(options);
@@ -305,7 +308,7 @@ public class SaveSystem : MonoBehaviour
             GridManager.height = data.gridHeight;
             GameObject.Find("Grid").GetComponent<GridManager>().GenerateGrid();
 
-            // Wczytanie przeszkód (skał i drzew)
+            // Wczytanie przeszkód
             if (data.obstaclePositions != null)
             {
                 // Tworzymy obiekty na podstawie wczytanych danych
@@ -317,6 +320,15 @@ public class SaveSystem : MonoBehaviour
                 }
             }
         }
+
+        //// Usuwa wszystkie postacie, jeśli wczytujemy jakąś mapę z szablonu
+        //if (exceptionNames.Contains(dropdownText) && dropdownText != "autoSave")
+        //{
+        //    foreach (var character in characters)
+        //    {
+        //        Destroy(character);
+        //    }
+        //}
 
         GameObject.Find("MessageManager").GetComponent<MessageManager>().ShowMessage($"<color=green>Wczytano stan gry.</color>", 3f);
         Debug.Log($"<color=green>Wczytano stan gry.</color>");

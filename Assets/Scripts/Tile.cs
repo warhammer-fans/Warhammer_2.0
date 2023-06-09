@@ -22,10 +22,8 @@ public class Tile : MonoBehaviour
         layer = LayerMask.GetMask("Character");
 
         // Ustala kolor podswietlonych pol na taki sam jak normalny ale z opacity na poziomie 80%
-        rangeColor = _renderer.material.color;
-        rangeColor.a = 0.8f;
-        rangeHighlightColor = highlightColor;
-        rangeHighlightColor.a = 0.8f;
+        rangeColor = _renderer.material.color * 0.92f;
+        rangeHighlightColor = highlightColor * 0.9f;
     }
 
     void Update()
@@ -149,6 +147,10 @@ public class Tile : MonoBehaviour
             else if (GridManager.wallAdding)
             {
                 GameObject.Find("Grid").GetComponent<GridManager>().AddObstacle(mousePosition, "Wall", false);
+            }
+            else if (GridManager.waterAdding)
+            {
+                GameObject.Find("Grid").GetComponent<GridManager>().AddObstacle(mousePosition, "Water", false);
             }
         }
     }

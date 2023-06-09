@@ -52,17 +52,26 @@ public class MovementManager : MonoBehaviour
 
     public void SetCharge()
     {
+        if (Charge || Run)
+            ResetChargeAndRun();
+
         // Ustalenie ktora postac jest wybrana
         GameObject character = Character.selectedCharacter;
         if (character == null) return;
 
-        if (Charge || Run)
-            ResetChargeAndRun();
+        if (character.GetComponent<Stats>().actionsLeft < 2 && GameManager.StandardMode)
+        {
+            messageManager.ShowMessage($"<color=red>Postać nie może wykonać tylu akcji w tej rundzie.</color>", 3f);
+            Debug.Log($"Postać nie może wykonać tylu akcji w tej rundzie.");
+            return;
+        }
+
         else if (!Charge)
         {
             Charge = true;
             character.GetComponent<Stats>().tempSz = character.GetComponent<Stats>().Sz * 2; // zmiana aktualnej predkosci
             Run = false;
+            GameObject.Find("AttackManager").GetComponent<AttackManager>().SelectTarget(false);
         }
 
         // Zresetowanie koloru wszystkich pol
@@ -81,18 +90,20 @@ public class MovementManager : MonoBehaviour
         GameObject character = Character.selectedCharacter;
         if (character == null) return;
 
+        if (character.GetComponent<Stats>().actionsLeft < 2 && GameManager.StandardMode)
+        {
+            messageManager.ShowMessage($"<color=red>Postać nie może wykonać tylu akcji w tej rundzie.</color>", 3f);
+            Debug.Log($"Postać nie może wykonać tylu akcji w tej rundzie.");
+            return;
+        }
+
         if (!Run)
         {
             Run = true;
             character.GetComponent<Stats>().tempSz = character.GetComponent<Stats>().Sz * 3; // zmiana aktualnej predkosci
             Charge = false;
+            ActiveMove();
         }
-
-        // Zresetowanie koloru podswietlonych pol w zasiegu ruchu
-        grid.ResetTileColors();
-
-        // Aktualizacja podswietlonego zasiegu ruchu postaci
-        HighlightTilesInMovementRange(character);
     }
 
     //aktywuje mozliwosc ruchu
