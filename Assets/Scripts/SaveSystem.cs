@@ -179,24 +179,33 @@ public class SaveSystem : MonoBehaviour
 
         ScenesManager.saveFileName = "";
 
-        // Pobranie listy zapisanych plików
-        string[] files = Directory.GetFiles(Application.persistentDataPath + "/" + dropdownText, "*.fun");
 
         CharacterManager.randomPositionMode = true;
 
-        // Wczytuje każdy plik o nazwie istniejącej w liście nazw obecnie istniejących na polu bitwy postaci
-        foreach (string file in files)
+        // Jeżeli wczytujemy szablon z mapą
+        if (exceptionNames.Contains(dropdownText) && dropdownText != "autosave")
         {
-            string fileName = Path.GetFileNameWithoutExtension(file);
-            if (!charNames.Contains(fileName))
+            GameObject.Find("CharacterManager").GetComponent<CharacterManager>().CreateNewCharacter("Enemy", "tempCharacter", Vector2.zero);
+        }
+        else
+        {
+            // Pobranie listy zapisanych plików
+            string[] files = Directory.GetFiles(Application.persistentDataPath + "/" + dropdownText, "*.fun");
+
+            // Wczytuje każdy plik o nazwie istniejącej w liście nazw obecnie istniejących na polu bitwy postaci
+            foreach (string file in files)
             {
-                if (fileName.StartsWith("P")) // Sprawdza, czy ten string zaczyna się o litery 'P'. W ten sposób wykryje Playera.
+                string fileName = Path.GetFileNameWithoutExtension(file);
+                if (!charNames.Contains(fileName))
                 {
-                    GameObject.Find("CharacterManager").GetComponent<CharacterManager>().CreateNewCharacter("Player", fileName, Vector2.zero);
-                }
-                if (fileName.StartsWith("E")) // Sprawdza, czy ten string zaczyna się o litery 'E'. w ten sposób wykryje Enemy.
-                {
-                    GameObject.Find("CharacterManager").GetComponent<CharacterManager>().CreateNewCharacter("Enemy", fileName, Vector2.zero);
+                    if (fileName.StartsWith("P")) // Sprawdza, czy ten string zaczyna się o litery 'P'. W ten sposób wykryje Playera.
+                    {
+                        GameObject.Find("CharacterManager").GetComponent<CharacterManager>().CreateNewCharacter("Player", fileName, Vector2.zero);
+                    }
+                    if (fileName.StartsWith("E")) // Sprawdza, czy ten string zaczyna się o litery 'E'. w ten sposób wykryje Enemy.
+                    {
+                        GameObject.Find("CharacterManager").GetComponent<CharacterManager>().CreateNewCharacter("Enemy", fileName, Vector2.zero);
+                    }
                 }
             }
         }
@@ -256,8 +265,11 @@ public class SaveSystem : MonoBehaviour
         }
 
         foreach (var character in uniqueCharacters)
-        {           
-            string path = Application.persistentDataPath + "/" + dropdownText + "/" + character.name + ".fun";
+        {
+            // Jeśli wczytujemy jedną z map szablonów to ścieżką jest plik znajdujący się wewnątrz projektu gry, a jak nie to ścieżka prowadzi do standardowego folderu z save'ami
+            string path = (exceptionNames.Contains(dropdownText) && dropdownText != "autosave")
+                ? Path.Combine(Application.dataPath, "Resources", dropdownText, character.name + ".fun")
+                : Path.Combine(Application.persistentDataPath, dropdownText, character.name + ".fun");
 
             // Sprawdza, czy w pliku zapisu znajduje się dana postać. Jesli się znajduje to wczytuje jej staty i pozycje, a jak jej tam nie ma to ją usuwa.
             if (File.Exists(path))
@@ -290,7 +302,7 @@ public class SaveSystem : MonoBehaviour
                 else if (character.CompareTag("Enemy"))
                     character.GetComponent<Renderer>().material.color = new Color(255, 0, 0);
             }
-            else
+            else if (!exceptionNames.Contains(dropdownText))
             {
                 // Usuń postać
                 Destroy(character);
@@ -321,14 +333,14 @@ public class SaveSystem : MonoBehaviour
             }
         }
 
-        //// Usuwa wszystkie postacie, jeśli wczytujemy jakąś mapę z szablonu
-        //if (exceptionNames.Contains(dropdownText) && dropdownText != "autoSave")
-        //{
-        //    foreach (var character in characters)
-        //    {
-        //        Destroy(character);
-        //    }
-        //}
+        // Usuwa wszystkie postacie, jeśli wczytujemy jakąś mapę z szablonu
+        if (exceptionNames.Contains(dropdownText) && dropdownText != "autosave")
+        {
+            foreach (var character in characters)
+            {
+                character.SetActive(false);
+            }
+        }
 
         GameObject.Find("MessageManager").GetComponent<MessageManager>().ShowMessage($"<color=green>Wczytano stan gry.</color>", 3f);
         Debug.Log($"<color=green>Wczytano stan gry.</color>");
@@ -338,7 +350,11 @@ public class SaveSystem : MonoBehaviour
     #region Load character stats
     public static GameData LoadCharacterStats(string charName)
     {
-        string path = Application.persistentDataPath + "/" + dropdownText + "/" + charName + ".fun";
+        // Jeśli wczytujemy jedną z map szablonów to ścieżką jest plik znajdujący się wewnątrz projektu gry, a jak nie to ścieżka prowadzi do standardowego folderu z save'ami
+        string path = (dropdownText == "Las" || dropdownText == "Miasto" || dropdownText == "Rzeka")
+            ? Path.Combine(Application.dataPath, "Resources", dropdownText, charName + ".fun")
+            : Path.Combine(Application.persistentDataPath, dropdownText, charName + ".fun");
+
         if (File.Exists(path))
         {
             BinaryFormatter formatter = new BinaryFormatter();
