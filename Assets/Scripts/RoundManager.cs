@@ -63,6 +63,7 @@ public class RoundManager : MonoBehaviour
         {
             characterManager.ResetParryAndDodge(obj.GetComponent<Stats>());
             characterManager.ResetActionsNumber(obj.GetComponent<Stats>());
+            characterManager.ResetSpellcastingLimit(obj.GetComponent<Stats>());
 
             if (obj.isScary)
                 scaryEnemyExist = true;

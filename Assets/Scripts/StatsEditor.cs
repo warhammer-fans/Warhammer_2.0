@@ -140,6 +140,10 @@ public class StatsEditor : MonoBehaviour
 
             field.SetValue(character.GetComponent<Stats>(), value);
             Debug.Log($"Atrybut {field.Name} zmieniony na {value}");
+
+            // Odświeżenie buttonów magii
+            if (textInput.name == "Mag")
+                GameObject.Find("ButtonManager").GetComponent<ButtonManager>().ShowOrHideMagicButtons(Character.selectedCharacter);
         }
         else if (field != null && field.FieldType == typeof(bool)) 
         {

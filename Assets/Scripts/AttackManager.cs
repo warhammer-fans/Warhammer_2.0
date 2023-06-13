@@ -38,6 +38,9 @@ public class AttackManager : MonoBehaviour
     // Wybor celu ataku
     public void SelectTarget(bool spellTarget)
     {
+        if (spellTarget && !Character.selectedCharacter.GetComponent<Stats>().canSpell)
+            return;
+
         messageManager.ShowMessage("Wybierz cel, klikając na niego.", 3f);
         Debug.Log("Wybierz cel, klikając na niego.");
 

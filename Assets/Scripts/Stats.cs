@@ -44,6 +44,7 @@ public class Stats : MonoBehaviour
     [HideInInspector] public bool QuickDraw; // informacja o tym, czy postac posiada zdolność szybkiego wyciągnięcia
     [HideInInspector] public bool canParry = true; // informacja o tym, czy postac może parować atak
     [HideInInspector] public bool canDodge; // informacja o tym, czy postac może unikać ataku
+    [HideInInspector] public bool canSpell = true; // informacja o tym, czy postac może w danej rundzie rzucić zaklęcie
     [HideInInspector] public bool isScary; // informacja o tym, że postać jest Straszna
     [HideInInspector] public bool isScared = true; // informacja o tym, że postać jest przestraszona
     [HideInInspector] public bool Brave; // informacja o tym, czy postać posiada zdolność Odwaga
@@ -165,6 +166,18 @@ public class Stats : MonoBehaviour
             AttackRange = DistanceAttackRange;
         }
 
+        // Ustawienie domyślnych statystyk ekwipunku i zdolności, żeby przy zmianie rasy były one resetowane
+        PZ_head = 0;
+        PZ_arms = 0;
+        PZ_torso = 0;
+        PZ_legs = 0;
+
+        Druzgoczacy = false;
+        Powolny = false;
+        PrzebijajacyZbroje = false;
+        isScary = false;
+        StrongBlow = false;
+
         if (rasa == Character.Rasa.Elf)
         {
             US += 10;
@@ -197,7 +210,7 @@ public class Stats : MonoBehaviour
             if (rollPP <= 7 && rollPP > 4)
                 PP--;
         }
-        else if (rasa == Character.Rasa.Goblin) // To jest zrobione na probe. Ale chcę zrobić to dla różnych potworów
+        else if (rasa == Character.Rasa.Goblin)
         {
             WW -= 6;
             US --;
@@ -209,6 +222,55 @@ public class Stats : MonoBehaviour
             Ogd -= 11;
 
             maxHealth -= 3;
+
+            PZ_torso = 1;
+        }
+        else if (rasa == Character.Rasa.Minotaur)
+        {
+            WW += 11;
+            US -= 6;
+            K += 17;
+            Odp += 15;
+            Zr += 7;
+            Int -= 13;
+            SW -= 7;
+            Ogd -= 15;
+
+            A += 1;
+            maxHealth += 15;
+            Sz = 6;
+
+            PZ_arms = 1;
+            PZ_torso = 1;
+
+            AttackRange = 1.5;
+            Druzgoczacy = true;
+            Powolny = true;
+            isScary = true;
+            StrongBlow = true;
+        }
+        else if (rasa == Character.Rasa.Ogr)
+        {
+            US -= 10;
+            K += 15;
+            Odp += 14;
+            Zr -= 7;
+            Int -= 9;
+            SW += 4;
+            Ogd -= 11;
+
+            A += 2;
+            maxHealth += 13;
+            Sz = 6;
+
+            PZ_head = 2;
+            PZ_arms = 1;
+            PZ_torso = 3;
+            PZ_legs = 1;
+
+            AttackRange = 1.5;
+            isScary = true;
+            StrongBlow = true;
         }
         else if (rasa == Character.Rasa.Ork)
         {
@@ -222,6 +284,30 @@ public class Stats : MonoBehaviour
             Ogd -= 11;
 
             maxHealth += 1;
+
+            PZ_head = 1;
+            PZ_arms = 1;
+            PZ_torso = 3;
+
+            StrongBlow = true;
+        }
+        else if (rasa == Character.Rasa.Skaven)
+        {
+            WW -= 1;
+            US -= 6;
+            K -= 1;
+            Odp -= 1;
+            Zr += 9;
+            Int -= 6;
+            SW -= 6;
+            Ogd -= 16;
+
+            maxHealth -= 2;
+            Sz = 5;
+
+            PZ_head = 1;
+            PZ_arms = 1;
+            PZ_torso = 1;
         }
         else if (rasa == Character.Rasa.Smok)
         {
@@ -247,6 +333,7 @@ public class Stats : MonoBehaviour
             Druzgoczacy = true;
             PrzebijajacyZbroje = true;
             isScary = true;
+            StrongBlow = true;
         }
         else if (rasa == Character.Rasa.Troll)
         {
@@ -264,7 +351,26 @@ public class Stats : MonoBehaviour
             Sz = 6;
 
             AttackRange = 1.5;
+            Druzgoczacy = true;
+            Powolny = true;
             isScary = true;
+        }
+        else if (rasa == Character.Rasa.Zwierzoczłek)
+        {
+            WW += 9;
+            US -= 6;
+            K += 4;
+            Odp += 13;
+            Zr += 4;
+            Int -= 5;
+            SW -= 6;
+            Ogd -= 6;
+
+            maxHealth += 1;
+            Sz = 5;
+
+            PZ_arms = 1;
+            PZ_torso = 1;
         }
 
         Initiative = Zr + Random.Range(1, 11);

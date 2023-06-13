@@ -7,7 +7,7 @@ using System;
 public class Character : MonoBehaviour
 {
     public static Stats charStats;
-    public enum Rasa { Człowiek, Elf, Krasnolud, Niziołek, Goblin, Ork, Skaven, Smok, Troll, Zwierzoczłek }
+    public enum Rasa { Człowiek, Elf, Krasnolud, Niziołek, Goblin, Minotaur, Ogr, Ork, Skaven, Smok, Troll, Zwierzoczłek }
     public Rasa rasa;
 
     private TMP_Text nameDisplay;
@@ -220,7 +220,11 @@ public class Character : MonoBehaviour
             else if (MovementManager.Charge)
                 attackManager.ChargeAttack(selectedCharacter, thisCharacter);
             else if (MagicManager.targetSelecting == true)
+            {
                 GameObject.Find("MagicManager").GetComponent<MagicManager>().GetMagicDamage(thisCharacter);
+                // Przywraca widocznosc przyciskow akcji atakujacej postaci
+                buttonManager.ShowOrHideActionsButtons(selectedCharacter, true);
+            }
 
             // Ukrywa przyciski zaklęć, jeśli są aktywne
             buttonManager.HideSpellButtons();

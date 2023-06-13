@@ -348,6 +348,13 @@ public class CharacterManager : MonoBehaviour
     }
     #endregion
 
+    #region Reset spellcasting limit
+    public void ResetSpellcastingLimit(Stats charStats)
+    {
+        charStats.canSpell = true;
+    }
+    #endregion
+
     #region Character actions managing
     public void ResetActionsNumber(Stats charStats)
     {

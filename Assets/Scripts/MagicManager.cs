@@ -95,7 +95,7 @@ public class MagicManager : MonoBehaviour
             Debug.Log($"Wynik rzutu na poziom mocy, kość {i+1}: {rollResult}");
         }
         messageManager.ShowMessage($"Uzyskany poziom mocy: <color=red>{powerLevel + powerLevelBonus}</color>", 6f);
-        Debug.Log($"Uzyskany poziom mocy: <color=red>{powerLevel + powerLevelBonus}</color>");
+        Debug.Log($"Uzyskany poziom mocy: {powerLevel + powerLevelBonus}");
 
         // Liczenie dubletów
         foreach (int rollResult in allRollResults)
@@ -117,7 +117,7 @@ public class MagicManager : MonoBehaviour
                 messageManager.ShowMessage($"Wartość {value} występuje {count} razy.", 6f);
                 Debug.Log($"Wartość {value} występuje {count} razy.");
                 messageManager.ShowMessage($"<color=red>POMNIEJSZA MANIFESTACJA CHAOSU!</color> Wynik rzutu: {rollResult}", 6f);
-                Debug.Log($"<color=red>POMNIEJSZA MANIFESTACJA CHAOSU!</color> Wynik rzutu: {rollResult}");
+                Debug.Log($"POMNIEJSZA MANIFESTACJA CHAOSU! Wynik rzutu: {rollResult}");
             }
             else if (count == 3)
             {
@@ -125,7 +125,7 @@ public class MagicManager : MonoBehaviour
                 messageManager.ShowMessage($"Wartość {value} występuje {count} razy.", 6f);
                 Debug.Log($"Wartość {value} występuje {count} razy.");
                 messageManager.ShowMessage($"<color=red>POWAŻNA MANIFESTACJA CHAOSU!</color> Wynik rzutu: {rollResult}", 6f);
-                Debug.Log($"<color=red>POWAŻNA MANIFESTACJA CHAOSU!</color> Wynik rzutu: {rollResult}");
+                Debug.Log($"POWAŻNA MANIFESTACJA CHAOSU! Wynik rzutu: {rollResult}");
             }
             else if (count > 3)
             {
@@ -133,21 +133,36 @@ public class MagicManager : MonoBehaviour
                 messageManager.ShowMessage($"Wartość {value} występuje {count} razy.", 6f);
                 Debug.Log($"Wartość {value} występuje {count} razy.");
                 messageManager.ShowMessage($"<color=red>KATASTROFALNA MANIFESTACJA CHAOSU!</color> Wynik rzutu: {rollResult}", 6f);
-                Debug.Log($"<color=red>KATASTROFALNA MANIFESTACJA CHAOSU!</color> Wynik rzutu: {rollResult}");
+                Debug.Log($"KATASTROFALNA MANIFESTACJA CHAOSU! Wynik rzutu: {rollResult}");
             }
         }
 
+        Character.selectedCharacter.GetComponent<Stats>().canSpell = false;
         return powerLevel;
     }
     #endregion
 
     public void SetSpellToOffensive()
     {
+        if (!Character.selectedCharacter.GetComponent<Stats>().canSpell)
+        {
+            messageManager.ShowMessage($"<color=red>Postać nie może rzucić więcej zaklęć w tej rundzie.</color>", 4f);
+            Debug.Log($"Postać nie może rzucić więcej zaklęć w tej rundzie.");
+            return;
+        }
+
         Character.selectedCharacter.GetComponent<Stats>().OffensiveSpell = true;
     }
 
     public void SetSpellToDeffensive()
     {
+        if (!Character.selectedCharacter.GetComponent<Stats>().canSpell && Character.selectedCharacter.GetComponent<Stats>().etherArmorActive != true)
+        {
+            messageManager.ShowMessage($"<color=red>Postać nie może rzucić więcej zaklęć w tej rundzie.</color>", 4f);
+            Debug.Log($"Postać nie może rzucić więcej zaklęć w tej rundzie.");
+            return;
+        }
+
         Character.selectedCharacter.GetComponent<Stats>().OffensiveSpell = false;
     }
 
@@ -362,6 +377,9 @@ public class MagicManager : MonoBehaviour
             character = Character.selectedCharacter;
 
         Stats charStats = character.GetComponent<Stats>();
+
+        if (!charStats.canSpell && charStats.etherArmorActive != true)
+            return;
 
         if (charStats.etherArmorActive == true)
         {

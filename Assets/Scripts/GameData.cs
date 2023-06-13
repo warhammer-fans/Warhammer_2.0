@@ -50,6 +50,7 @@ public class GameData
     [HideInInspector] public bool QuickDraw; // informacja o tym, czy postac posiada zdolność szybkiego wyciągnięcia
     [HideInInspector] public bool canParry = true; // informacja o tym, czy postac może parować atak
     [HideInInspector] public bool canDodge; // informacja o tym, czy postac może unikać ataku
+    [HideInInspector] public bool canSpell = true; // informacja o tym, czy postac może w danej rundzie rzucić zaklęcie
     [HideInInspector] public bool isScary; // informacja o tym, że postać jest Straszna
     [HideInInspector] public bool isScared; // informacja o tym, że postać jest przestraszona
     [HideInInspector] public bool Brave; // informacja o tym, czy postać posiada zdolność Odwaga

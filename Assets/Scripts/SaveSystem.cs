@@ -151,6 +151,7 @@ public class SaveSystem : MonoBehaviour
                     Character.selectedCharacter.GetComponent<Renderer>().material.color = new Color(255, 0, 0);
 
             GameObject.Find("ButtonManager").GetComponent<ButtonManager>().ShowOrHideActionsButtons(Character.selectedCharacter, false);
+            GameObject.Find("ButtonManager").GetComponent<ButtonManager>().HideSpellButtons();
             MovementManager.canMove = true;
 
             // Zresetowanie koloru podswietlonych pol w zasiegu ruchu
