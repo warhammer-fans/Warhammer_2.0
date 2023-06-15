@@ -317,7 +317,6 @@ public class MovementManager : MonoBehaviour
                         isTile = true;
                     }
 
-
                     if (isTile)
                     {
                         // Oblicza koszt G dla sąsiada

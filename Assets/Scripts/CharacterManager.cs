@@ -290,7 +290,8 @@ public class CharacterManager : MonoBehaviour
         }
 
         // Aktualizacja wyświetlanych statystyk
-        GameObject.Find("StatsEditor").GetComponent<StatsEditor>().LoadAttributes();
+        if(Character.selectedCharacter != null)
+            GameObject.Find("StatsEditor").GetComponent<StatsEditor>().LoadAttributes();
     }
     #endregion
 

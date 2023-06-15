@@ -661,26 +661,10 @@ public class AttackManager : MonoBehaviour
     {
         Stats attackerStats = attacker.GetComponent<Stats>();
 
-        // wektor we wszystkie osiem kierunkow dookola pola z postacia bedaca celem ataku
-        Vector3[] directions = { Vector3.right, Vector3.left, Vector3.up, Vector3.down, new Vector3(1, 1, 0), new Vector3(-1, -1, 0), new Vector3(-1, 1, 0), new Vector3(1, -1, 0) };
+        // Sprawdza dystans do pola docelowego
+        Vector3 targetTilePos = GetTargetTilePosition(attacker, target);
 
-        // lista pol przylegajacych do postaci
-        List<GameObject> adjacentTiles = new List<GameObject>();
-
-        // Szuka pol w kazdym kierunku
-        foreach (Vector3 direction in directions)
-        {
-            // znajdz wszystkie kolidery w miejscach przylegajacych do postaci bedacej celem ataku
-            // jesli w jednym miejscu wystepuje wiecej niz jeden collider to oznacza, ze pole jest zajete przez postac, wtedy nie dodajemy tego collidera do listy adjacentTiles
-            Collider2D[] collider = Physics2D.OverlapCircleAll(target.transform.position + direction, 0.1f);
-
-            if (collider != null && collider.Length == 1 && collider[0].CompareTag("Tile") && movementManager.tilesInMovementRange.Contains(collider[0].gameObject))
-            {
-                adjacentTiles.Add(collider[0].gameObject);
-            }
-        }
-
-        if (adjacentTiles.Count == 0)
+        if (targetTilePos == attacker.transform.position)
         {
             messageManager.ShowMessage($"<color=red>Cel ataku stoi poza zasięgiem szarży.</color>", 3f);
             Debug.Log($"Cel ataku stoi poza zasięgiem szarży.");
@@ -689,14 +673,6 @@ public class AttackManager : MonoBehaviour
             return;
         }
 
-        // Zamienia liste na tablice, zeby pozniej mozna bylo ja posortowac
-        GameObject[] adjacentTilesArray = adjacentTiles.ToArray();
-
-        // Sortuje przylegajace do postaci pola wg odleglosci od atakujacego. Te ktore sa najblizej znajduja sie na poczatku tablicy
-        Array.Sort(adjacentTilesArray, (x, y) => Vector3.Distance(x.transform.position, attacker.transform.position).CompareTo(Vector3.Distance(y.transform.position, attacker.transform.position)));
-
-        // Sprawdza dystans do pola docelowego
-        Vector3 targetTilePos = new Vector3(adjacentTilesArray[0].transform.position.x, adjacentTilesArray[0].transform.position.y, 0);
         List<Vector3> path = movementManager.FindPath(attacker.transform.position, targetTilePos, attackerStats.Sz * 2);
 
         if (path.Count >= 3 && path.Count <= attackerStats.Sz * 2) // Jesli jest w zasiegu szarzy
@@ -710,31 +686,34 @@ public class AttackManager : MonoBehaviour
                 attacker.GetComponent<Renderer>().material.color = new Color(255, 0, 0);
 
 
-            //Wykonanie szarzy
-            if (adjacentTilesArray != null)
+            //WYKONANIE SZARŻY
+
+            attackerStats.tempSz = attackerStats.Sz * 2;
+
+            MovementManager.canMove = true;
+
+            MovementManager.Charge = true;
+
+            // Znajduje Tile w docelowej pozycji
+            Collider2D colliderTile = Physics2D.OverlapCircle(targetTilePos, 0.1f);
+
+            movementManager.MoveSelectedCharacter(colliderTile.gameObject, attacker);
+            Physics2D.SyncTransforms(); // Synchronizuje collidery (inaczej Collider2D nie wykrywa zmian pozycji postaci)
+
+
+            // Wywołanie funkcji z wyczekaniem na koniec animacji ruchu postaci
+            StartCoroutine(DelayedAttack(attacker, target, path.Count * 0.2f));
+
+            IEnumerator DelayedAttack(GameObject attacker, GameObject target, float delay)
             {
-                attackerStats.tempSz = attackerStats.Sz * 2;
-
-                MovementManager.canMove = true;
-
+                yield return new WaitForSeconds(delay);
                 MovementManager.Charge = true;
-                movementManager.MoveSelectedCharacter(adjacentTilesArray[0], attacker);
-                Physics2D.SyncTransforms(); // Synchronizuje collidery (inaczej Collider2D nie wykrywa zmian pozycji postaci)
-
-
-                // Wywołanie funkcji z wyczekaniem na koniec animacji ruchu postaci
-                StartCoroutine(DelayedAttack(attacker, target, path.Count * 0.2f));
-
-                IEnumerator DelayedAttack(GameObject attacker, GameObject target, float delay)
-                {
-                    yield return new WaitForSeconds(delay);
-                    MovementManager.Charge = true;
-                    Attack(attacker, target);
-                }
-
-                // Zresetowanie szarzy
-                movementManager.ResetChargeAndRun();
+                Attack(attacker, target);
             }
+
+            // Zresetowanie szarzy
+            movementManager.ResetChargeAndRun();
+            
         }
         else if (path.Count < 3) // Jesli jest zbyt blisko na szarze
         {
@@ -744,6 +723,46 @@ public class AttackManager : MonoBehaviour
             messageManager.ShowMessage($"<color=red>Zbyt mała odległość na wykonanie szarży.</color>", 3f);
             Debug.Log("Zbyt mała odległość na wykonanie szarży");
         }
+    }
+
+    // Szuka wolnej pozycji obok celu szarży, do której droga postaci jest najkrótsza
+    public Vector3 GetTargetTilePosition(GameObject attacker, GameObject target)
+    {
+        Vector3 targetPos = target.transform.position;
+
+        Vector3[] positions = { targetPos + Vector3.right,
+            targetPos + Vector3.left,
+            targetPos + Vector3.up,
+            targetPos + Vector3.down,
+            targetPos + new Vector3(1, 1, 0),
+            targetPos + new Vector3(-1, -1, 0),
+            targetPos + new Vector3(-1, 1, 0),
+            targetPos + new Vector3(1, -1, 0)
+        };
+
+        // Początkowo ustalamy docelowe pole na pozycje atakującego. Gdy się nie zmieni to szarża nie zostanie wykonana.
+        Vector3 targetTilePos = attacker.transform.position;
+        int shortestPathLength = int.MaxValue;
+
+        foreach (Vector3 pos in positions)
+        {
+            Collider2D[] collider = Physics2D.OverlapCircleAll(pos, 0.1f);
+
+            // Sprawdza, czy pole jest wolne od przeszkód lub innych postaci
+            if (collider != null && collider.Length == 1 && collider[0].CompareTag("Tile") && movementManager.tilesInMovementRange.Contains(collider[0].gameObject))
+            {
+                List<Vector3> path = movementManager.FindPath(attacker.transform.position, pos, attacker.GetComponent<Stats>().Sz * 2);
+
+                // Aktualizuje najkrótszą drogę
+                if (path.Count < shortestPathLength)
+                {
+                    shortestPathLength = path.Count;
+                    targetTilePos = pos;
+                }
+            }
+        }
+
+        return targetTilePos;
     }
     #endregion
 }

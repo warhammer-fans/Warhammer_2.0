@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class Tile : MonoBehaviour
 {
@@ -15,6 +16,8 @@ public class Tile : MonoBehaviour
 
     public static bool isMouseDragging; // Określa, czy lewy przycisk myszy jest przytrzymany. Wtedy można stawiać przeszkody bez konieczności klikania za każdym razem
 
+    private List<Vector3> path; // Ścieżka ruchu postaci. Jest podświetlana przy najechaniu kursorem na potencjalnie docelowy "Tile"
+
     public void Init(bool isOffset)
     {
         _renderer.material.color = isOffset ? offsetColor : baseColor;
@@ -24,6 +27,8 @@ public class Tile : MonoBehaviour
         // Ustala kolor podswietlonych pol na taki sam jak normalny ale z opacity na poziomie 80%
         rangeColor = _renderer.material.color * 0.92f;
         rangeHighlightColor = highlightColor * 0.9f;
+
+        path = new List<Vector3>();
     }
 
     void Update()
@@ -51,11 +56,23 @@ public class Tile : MonoBehaviour
                 _renderer.material.color = highlightColor;
             else
                 _renderer.material.color = rangeHighlightColor;
+
+            MovementManager movementManager = GameObject.Find("MovementManager").GetComponent<MovementManager>();
+            path = movementManager.FindPath(Character.selectedCharacter.transform.position, new Vector3 (transform.position.x, transform.position.y, 0), Character.selectedCharacter.GetComponent<Stats>().tempSz);
+
+            if(path.Count <= Character.selectedCharacter.GetComponent<Stats>().tempSz)
+            {
+                foreach (Vector3 tile in path)
+                {
+                    Collider2D collider = Physics2D.OverlapCircle(tile, 0.1f);
+                    collider.gameObject.GetComponent<Tile>()._renderer.material.color = rangeHighlightColor;
+                }
+            }
         }
         if (MagicManager.targetSelecting && Character.selectedCharacter.GetComponent<Stats>().AreaSize > 0)
         {
             GameObject.Find("MagicManager").GetComponent<MagicManager>().HighlightTilesInSpellRange(this.gameObject);
-        }
+        }   
     }
 
     void OnMouseExit()
@@ -64,7 +81,14 @@ public class Tile : MonoBehaviour
         if (_renderer.material.color != rangeHighlightColor && _renderer.material.color == highlightColor)
             _renderer.material.color = normalColor;
         else if (MovementManager.canMove == true)
-            _renderer.material.color = rangeColor;
+        {
+            GameObject[] tiles = GameObject.FindGameObjectsWithTag("Tile");
+            foreach (var tile in tiles)
+            {
+                if (tile.GetComponent<Tile>()._renderer.material.color == tile.GetComponent<Tile>().rangeHighlightColor)
+                    tile.GetComponent<Tile>()._renderer.material.color = tile.GetComponent<Tile>().rangeColor;
+            }
+        }
     }
 
     void OnMouseUp()

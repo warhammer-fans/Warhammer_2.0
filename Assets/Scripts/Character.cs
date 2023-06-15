@@ -25,6 +25,8 @@ public class Character : MonoBehaviour
 
     private MessageManager messageManager;
 
+    private MovementManager movementManager;
+
     void Start()
     {
         // Odniesienie do menadżera postaci
@@ -38,6 +40,10 @@ public class Character : MonoBehaviour
 
         //Odniesienie do Managera Ataku
         attackManager = GameObject.Find("AttackManager").GetComponent<AttackManager>();
+
+        //Odniesienie do Managera Ruchu
+        movementManager = GameObject.Find("MovementManager").GetComponent<MovementManager>();
+
         //nadanie rasy
         if (this.gameObject.CompareTag("Player"))
             rasa = (Rasa)UnityEngine.Random.Range(0, 4);
@@ -95,6 +101,36 @@ public class Character : MonoBehaviour
         if (MagicManager.targetSelecting && selectedCharacter.GetComponent<Stats>().AreaSize > 0)
         {
             GameObject.Find("MagicManager").GetComponent<MagicManager>().HighlightTilesInSpellRange(this.gameObject);
+        }
+
+        // Podświetla potencjalną ścieżke postaci podczas wyboru celu szarży
+        if (MovementManager.Charge && selectedCharacter != this.gameObject && selectedCharacter.tag != this.gameObject.tag)
+        {
+            // Sprawdza dystans do pola docelowego
+            Vector3 targetTilePos = attackManager.GetTargetTilePosition(selectedCharacter, this.gameObject);
+            List<Vector3> path = movementManager.FindPath(selectedCharacter.transform.position, targetTilePos, selectedCharacter.GetComponent<Stats>().tempSz);
+
+            if (path.Count <= selectedCharacter.GetComponent<Stats>().tempSz)
+            {
+                foreach (Vector3 tile in path)
+                {
+                    Collider2D collider = Physics2D.OverlapCircle(tile, 0.1f);
+                    collider.gameObject.GetComponent<Tile>()._renderer.material.color = collider.gameObject.GetComponent<Tile>().rangeHighlightColor;
+                }
+            }
+        }
+    }
+    void OnMouseExit()
+    {
+        // Resetuje podświetlenie potencjalnej ścieżki postaci podczas wyboru celu szarży
+        if (MovementManager.Charge)
+        {
+            GameObject[] tiles = GameObject.FindGameObjectsWithTag("Tile");
+            foreach (var tile in tiles)
+            {
+                if (tile.GetComponent<Tile>()._renderer.material.color == tile.GetComponent<Tile>().rangeHighlightColor)
+                    tile.GetComponent<Tile>()._renderer.material.color = tile.GetComponent<Tile>().rangeColor;
+            }
         }
     }
 
