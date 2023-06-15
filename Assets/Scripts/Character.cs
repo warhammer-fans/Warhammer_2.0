@@ -286,25 +286,33 @@ public class Character : MonoBehaviour
                 messageManager.ShowMessage($"<color=red>Nie możesz atakować swoich sojuszników.</color>", 3f);
                 Debug.Log("Nie możesz atakować swoich sojuszników.");
 
-                if (!MovementManager.Charge)
-                {
-                    // Przywraca widocznosc przyciskow akcji
-                    buttonManager.ShowOrHideActionsButtons(selectedCharacter, true);
-                }
-                // Resetuje szarze jesli jest aktywna
+                // Przywraca widocznosc przyciskow akcji
+                buttonManager.ShowOrHideActionsButtons(selectedCharacter, true);
+                AttackManager.targetSelecting = false;
+
                 if (MovementManager.Charge)
-                    GameObject.Find("MovementManager").GetComponent<MovementManager>().ResetChargeAndRun();
+                    movementManager.ResetChargeAndRun();
                 return;
             }
 
-            if (!MovementManager.Charge)
+            Stats charStats = selectedCharacter.GetComponent<Stats>();
+            float attackDistance = Vector3.Distance(selectedCharacter.transform.position, this.transform.position);
+
+            if (attackDistance <= charStats.AttackRange && !charStats.distanceFight || attackDistance <= charStats.DistanceAttackRange && charStats.distanceFight)
             {
                 attackManager.Attack(selectedCharacter, this.gameObject);
                 // Przywraca widocznosc przyciskow akcji
                 buttonManager.ShowOrHideActionsButtons(selectedCharacter, true);
             }
-            else
-                attackManager.ChargeAttack(selectedCharacter, this.gameObject);
+            else if (!charStats.distanceFight)
+            {
+                movementManager.SetCharge();
+                if(MovementManager.Charge)
+                {
+                    AttackManager.targetSelecting = false;
+                    attackManager.ChargeAttack(selectedCharacter, this.gameObject);
+                }
+            }
         }
         // ŚRODKOWY PRZYCISK MYSZY == Wybierz klikniętą postać, nie musisz odznaczać obecnie wybranej
         else if (Input.GetMouseButtonDown(2) && !GameManager.PanelIsOpen && !MovementManager.isMoving) // wcisniecie srodkowego przycisku myszy

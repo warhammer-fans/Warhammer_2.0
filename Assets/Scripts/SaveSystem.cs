@@ -385,7 +385,10 @@ public class SaveSystem : MonoBehaviour
         string path = Application.persistentDataPath + "/" + dropdownText;
         Directory.Delete(path, true);
 
-        GameObject.Find("MessageManager").GetComponent<MessageManager>().ShowMessage($"Zapis {dropdownText} został usunięty.", 3f);
+        MessageManager messageManager = GameObject.Find("MessageManager")?.GetComponent<MessageManager>();
+        if (messageManager != null)
+            messageManager.ShowMessage($"Zapis {dropdownText} został usunięty.", 3f);
+
         Debug.Log($"Zapis {dropdownText} został usunięty.");
 
         SetSavedFilesDropdown();
