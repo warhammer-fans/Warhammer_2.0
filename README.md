@@ -24,7 +24,7 @@ At the moment only Polish language is supported.
 # Features
 
 - 4 races: Human, Elf, Dwarf, Halfling
-- 6 possible opponent races, including trolls and dragons
+- 8 possible opponent races, including trolls and dragons
 - Warhammer Fighting mechanics relevant to fighting
  - Melee, range and magic wielding
  - Offensive spell casting
