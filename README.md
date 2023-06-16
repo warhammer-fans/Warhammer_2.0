@@ -16,7 +16,6 @@ The game was developed in Unity Engine. List of supported OS:
 
 - [x] Windows
 - [x] Mac
-- [x] Linux
 
 # Language Pack
 
