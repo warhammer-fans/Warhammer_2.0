@@ -6,7 +6,7 @@ This game is a Warhammer Fantasy Roleplay Simulator, created by fans and is not 
 
 At the moment, the game can only be downloaded from GitHub:
 
-    git clone git@github.com:MaciejWorwa/Warhammer_2.0.git
+    git clone git@github.com:warhammer-fans/Warhammer_2.0.git
 
 Execute the `Warhammer_2ed.exe` executable file and enjoy!
 
