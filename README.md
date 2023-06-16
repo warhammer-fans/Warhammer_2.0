@@ -15,7 +15,6 @@ Execute the `Warhammer_2ed.exe` executable file and enjoy!
 The game was developed in Unity Engine. List of supported OS:
 
 - [x] Windows
-- [x] Mac
 
 # Language Pack
 
